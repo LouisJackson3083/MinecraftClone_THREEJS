@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Chunk } from './chunkUtils.js';
+import { Chunk, ChunkManager } from './chunkUtils.js';
 
 function initializeThreeJS() {
     scene = new THREE.Scene();
@@ -14,14 +14,8 @@ function initializeThreeJS() {
 var scene, camera, renderer, controls;
 initializeThreeJS();
 
-var chunk1 = new Chunk(scene, 0, 0);
-var chunk2 = new Chunk(scene, 4, 0);
-var chunk3 = new Chunk(scene, 0, 4);
-var chunk4 = new Chunk(scene, 4, 4);
-chunk1.rebuildChunk();
-chunk2.rebuildChunk();
-chunk3.rebuildChunk();
-chunk4.rebuildChunk();
+var chunkManager = new ChunkManager(scene);
+chunkManager.rebuildChunks();
 
 // set up ground
 const groundGeometry = new THREE.BoxGeometry(8, 0.5, 8);

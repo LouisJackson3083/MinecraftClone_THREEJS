@@ -38,10 +38,10 @@ export class Chunk {
         return x + '.' + y + '.' + z;
     }
     
-    rebuildChunk() {
+    rebuildChunk(adjacentChunk1, adjacentChunk2, adjacentChunk3, adjacentChunk4) {
         for (let k in this.chunk) {
             const currentVoxel = this.chunk[k];
-            console.log(currentVoxel);
+
             const adjVoxel1 = this.voxelKey(currentVoxel.position[0]+1, currentVoxel.position[1], currentVoxel.position[2]);
             const adjVoxel2 = this.voxelKey(currentVoxel.position[0]-1, currentVoxel.position[1], currentVoxel.position[2]);
             const adjVoxel3 = this.voxelKey(currentVoxel.position[0], currentVoxel.position[1]+1, currentVoxel.position[2]);
@@ -56,7 +56,6 @@ export class Chunk {
                     currentVoxel.visible = true;
                 }
             }
-            console.log(currentVoxel.visible);
 
             if (currentVoxel.visible) {
                 this.buildVoxelGeometry(currentVoxel);
@@ -78,9 +77,50 @@ export class Chunk {
                 (voxel.facesHidden[5]) ? null : material,
             ]
         );
-        cube.position.set((this.chunk_x + voxel.position[0]) * 1.25, voxel.position[1] * 1.25, (this.chunk_z + voxel.position[2]) * 1.25);
+        cube.position.set((this.chunk_x*4 + voxel.position[0]) * 1.25, voxel.position[1] * 1.25, (this.chunk_z*4 + voxel.position[2]) * 1.25);
 
         this.scene.add(cube);
     }
     
+}
+
+export class ChunkManager {
+    constructor(scene) {
+        this.scene = scene;
+        this.chunkList = {};
+
+        for (let x = 0; x < 4; x++) {
+            for (let z = 0; z < 4; z++) {
+                this.chunkList[this.chunkKey(x,z)] = {
+                    position: [x, z],
+                    chunk: new Chunk(scene, x, z),
+                };
+            }
+        }
+    }
+
+    chunkKey(x, z) {
+        return x + '.' + z;
+    }
+
+    rebuildChunks() {
+        for (let k in this.chunkList) {
+            const currentChunk = this.chunkList[k].chunk;
+            const currentChunk_x = currentChunk.chunk_x;
+            const currentChunk_z = currentChunk.chunk_z;
+            console.log(k, currentChunk_x, currentChunk_z);
+
+            const adjacentChunkKey1 = this.chunkKey(currentChunk_x+1, currentChunk_z);
+            const adjacentChunkKey2 = this.chunkKey(currentChunk_x-2, currentChunk_z);
+            const adjacentChunkKey3 = this.chunkKey(currentChunk_x, currentChunk_z+1);
+            const adjacentChunkKey4 = this.chunkKey(currentChunk_x, currentChunk_z-1);
+
+            const adjacentChunk1 = (adjacentChunkKey1 in this.chunkList) ? this.chunkList[adjacentChunkKey1] : null;
+            const adjacentChunk2 = (adjacentChunkKey2 in this.chunkList) ? this.chunkList[adjacentChunkKey2] : null;
+            const adjacentChunk3 = (adjacentChunkKey3 in this.chunkList) ? this.chunkList[adjacentChunkKey3] : null;
+            const adjacentChunk4 = (adjacentChunkKey4 in this.chunkList) ? this.chunkList[adjacentChunkKey4] : null;
+            
+            console.log(adjacentChunk1, adjacentChunk2, adjacentChunk3, adjacentChunk4);
+        }
+    }
 }
