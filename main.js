@@ -34,7 +34,7 @@ dl.castShadow = true;
 const dlHelper = new THREE.DirectionalLightHelper(dl, 3);
 scene.add(dl);
 
-camera.position.set( 5, 5, 5 );
+camera.position.set( -50, 100, -50 );
 controls.update();
 
 

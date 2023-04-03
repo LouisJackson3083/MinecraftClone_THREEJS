@@ -1,17 +1,22 @@
 import * as THREE from 'three';
+import {NoiseGenerator} from './noise.js';
 
 export class Chunk {
 
-    constructor(scene, chunk_x, chunk_z, chunk_size) {
+    constructor(scene, chunk_x, chunk_z, chunk_size, noise) {
         this.scene = scene;
         this.chunk = {};
         this.chunk_x = chunk_x;
         this.chunk_z = chunk_z;
         this.chunk_size = chunk_size;
+        this.noise = noise;
 
         for (let x = 0; x < chunk_size; x++) {
-            for (let y = 0; y < chunk_size; y++) {
-                for (let z = 0; z < chunk_size; z++) {
+            for (let z = 0; z < chunk_size; z++) {
+
+                let height = this.get(x+chunk_x,z+chunk_z);
+
+                for (let y = 0; y < height; y++) {
                     this.chunk[this.voxelKey(x+chunk_x,y,z+chunk_z)] = {
                         position: [x+chunk_x, y, z+chunk_z],
                         facesHidden: [false, false, false, false, false, false],
@@ -20,6 +25,12 @@ export class Chunk {
                 }
             }
         }
+    }
+
+    get(x, y) {
+        const height = this.noise.get(x, y, 0.0);
+        
+        return height;
     }
 
     getChunk() {
@@ -67,9 +78,6 @@ export class Chunk {
             if ((currentVoxel.position[2]-1) % this.chunk_size == this.chunk_size-1 && adjacentChunk4 != null) {
                 voxelCheck[5] = adjVoxel6 in adjacentChunk4;
             }
-
-            console.log(voxelCheck);
-
             
             for (let i = 0; i < 6; i++) {
                 if (voxelCheck[i] == null) { voxelCheck[i] = voxelKeys[i] in this.chunk; }
@@ -101,7 +109,7 @@ export class Chunk {
                 (voxel.facesHidden[5]) ? null : material,
             ]
         );
-        cube.position.set(voxel.position[0] * 1.25, voxel.position[1] * 1.25, voxel.position[2] * 1.25);
+        cube.position.set(voxel.position[0], voxel.position[1], voxel.position[2]);
 
         this.scene.add(cube);
     }
@@ -113,6 +121,8 @@ export class ChunkManager {
         this.scene = scene;
         this.chunkList = {};
         this.chunk_size = 8;
+        // this.noise = new NoiseGenerator(10,1,100,0.5,2,128,3);
+        this.noise = new NoiseGenerator(10, 1, 100, 1, 5, 1024, 1);
 
         for (let x = 0; x < 4; x++) {
             for (let z = 0; z < 4; z++) {
@@ -120,7 +130,7 @@ export class ChunkManager {
                 const chunk_z = z*this.chunk_size;
                 this.chunkList[this.chunkKey(chunk_x,chunk_z)] = {
                     position: [chunk_x, chunk_z],
-                    chunk: new Chunk(scene, chunk_x, chunk_z, this.chunk_size),
+                    chunk: new Chunk(scene, chunk_x, chunk_z, this.chunk_size, this.noise),
                 };
             }
         }
