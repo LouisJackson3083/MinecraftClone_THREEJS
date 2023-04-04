@@ -2,38 +2,50 @@ import {simplex} from './simplex-noise.js';
 
 export class NoiseGenerator {
 
-    constructor(seed, min, max, persistence, lacunarity, scale, octaves) {
-        this.seed = seed;
-        this.range_min = min;
-        this.range_max = max;
-        this.persistence = persistence;
-        this.lacunarity = 2.0**(-lacunarity);
-        this.scale = scale;
-        this.octaves = octaves;
-        this.noise = new simplex.SimplexNoise(seed);
+    constructor(params) {
+        this.params = params;
+        this.noise = new simplex.SimplexNoise(this.params.seed);
+        // Seed - determines the random seed to generate noise from
+        // Scale - determines the scale the noise should be generated at. Larger = smoother, smaller = rougher
+        // Octaves - determines how fractal the noise should be, a larger octave creates a larger complexity
     }
 
-    get(x, y, z) {
-        let xs = x / this.scale;
-        let ys = y / this.scale;
-        let zs = z / this.scale;
+    // get(x, y, z) {
+    //     let xs = x / this.scale;
+    //     let ys = y / this.scale;
+    //     let zs = z / this.scale;
 
+    //     let frequency = 1;
+    //     let amplitude = 1;
+    //     let normalization = 0;
+    //     let total = 0;
+
+    //     for (let octave = 0; octave < this.octaves; octave++) {
+    //         let noiseValue = this.noise.noise3D(x * frequency, y * frequency, z * frequency);
+    //         total += noiseValue * amplitude;
+    //         normalization += amplitude;
+    //         amplitude *= this.persistence;
+    //         frequency *= this.lacunarity;
+    //     }
+
+    //     total /= normalization;
+    //     total *= 100;
+    //     total = Math.min(Math.max(total, this.range_min), this.range_max);
+    //     return Math.round(total);
+    // }
+
+    getStupid(x, y, z) {
+        let xs = x / this.params.scale;
+        let ys = y / this.params.scale;
+        let zs = z / this.params.scale;
+
+        let totalNoise = 0;
         let frequency = 1;
-        let amplitude = 1;
-        let normalization = 0;
-        let total = 0;
-
-        for (let octave = 0; octave < this.octaves; octave++) {
-            let noiseValue = this.noise.noise3D(x * frequency, y * frequency, z * frequency);
-            total += noiseValue * amplitude;
-            normalization += amplitude;
-            amplitude *= this.persistence;
-            frequency *= this.lacunarity;
+        
+        for (let octave = 0; octave < this.params.octaves; octave++ ) {
+            totalNoise += this.noise.noise3D(xs * frequency, ys * frequency, zs * frequency) / frequency;
+            frequency += 1;
         }
-
-        total /= normalization;
-        total *= 100;
-        total = Math.min(Math.max(total, this.range_min), this.range_max);
-        return Math.round(total);
+        return totalNoise ;
     }
 }

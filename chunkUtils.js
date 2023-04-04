@@ -14,23 +14,27 @@ export class Chunk {
         for (let x = 0; x < chunk_size; x++) {
             for (let z = 0; z < chunk_size; z++) {
 
-                let height = this.get(x+chunk_x,z+chunk_z);
+                let y = this.getElevation(x+chunk_x,z+chunk_z);
+                
+                this.chunk[this.voxelKey(x+chunk_x,y,z+chunk_z)] = {
+                    position: [x+chunk_x, y, z+chunk_z],
+                    facesHidden: [false, false, false, false, false, false],
+                    visible: false,
+                };
 
-                for (let y = 0; y < height; y++) {
-                    this.chunk[this.voxelKey(x+chunk_x,y,z+chunk_z)] = {
-                        position: [x+chunk_x, y, z+chunk_z],
-                        facesHidden: [false, false, false, false, false, false],
-                        visible: false,
-                    };
-                }
+                // for (let y = 0; y < height; y++) {
+                //     this.chunk[this.voxelKey(x+chunk_x,y,z+chunk_z)] = {
+                //         position: [x+chunk_x, y, z+chunk_z],
+                //         facesHidden: [false, false, false, false, false, false],
+                //         visible: false,
+                //     };
+                // }
             }
         }
     }
 
-    get(x, y) {
-        const height = this.noise.get(x, y, 0.0);
-        
-        return height;
+    getElevation(x, z) {
+        return this.noise.getStupid(x, z, 0.0);
     }
 
     getChunk() {
@@ -96,17 +100,20 @@ export class Chunk {
     }
     
     buildVoxelGeometry(voxel) {
-        const material = new THREE.MeshStandardMaterial({color: 0x00ff00,});
+        // voxel.position[1]
+        const grass_color = new THREE.Color( 0, 0.5+(voxel.position[1]), 0 );
+        const grass_material = new THREE.MeshStandardMaterial({color: grass_color,});
+        const dirt_material = new THREE.MeshStandardMaterial({color: 0x773333,});
         const geometry = new THREE.BoxGeometry(1, 1, 1);
 
         const cube = new THREE.Mesh(
             geometry,
-            [   (voxel.facesHidden[0]) ? null : material,
-                (voxel.facesHidden[1]) ? null : material,
-                (voxel.facesHidden[2]) ? null : material,
-                (voxel.facesHidden[3]) ? null : material,
-                (voxel.facesHidden[4]) ? null : material,
-                (voxel.facesHidden[5]) ? null : material,
+            [   (voxel.facesHidden[0]) ? null : dirt_material,
+                (voxel.facesHidden[1]) ? null : dirt_material,
+                (voxel.facesHidden[2]) ? null : grass_material,
+                (voxel.facesHidden[3]) ? null : dirt_material,
+                (voxel.facesHidden[4]) ? null : dirt_material,
+                (voxel.facesHidden[5]) ? null : dirt_material,
             ]
         );
         cube.position.set(voxel.position[0], voxel.position[1], voxel.position[2]);
@@ -122,10 +129,15 @@ export class ChunkManager {
         this.chunkList = {};
         this.chunk_size = 8;
         // this.noise = new NoiseGenerator(10,1,100,0.5,2,128,3);
-        this.noise = new NoiseGenerator(10, 1, 100, 1, 5, 1024, 1);
+        // this.noise = new NoiseGenerator(10, 1, 100, 1, 5, 16, 1);
+        this.noise = new NoiseGenerator({
+            seed: 6,
+            scale: 16,
+            octaves: 2,
+        });
 
-        for (let x = 0; x < 4; x++) {
-            for (let z = 0; z < 4; z++) {
+        for (let x = 0; x < 8; x++) {
+            for (let z = 0; z < 8; z++) {
                 const chunk_x = x*this.chunk_size;
                 const chunk_z = z*this.chunk_size;
                 this.chunkList[this.chunkKey(chunk_x,chunk_z)] = {

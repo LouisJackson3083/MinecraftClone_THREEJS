@@ -17,13 +17,6 @@ initializeThreeJS();
 var chunkManager = new ChunkManager(scene);
 chunkManager.rebuildChunks();
 
-// set up ground
-const groundGeometry = new THREE.BoxGeometry(8, 0.5, 8);
-const groundMaterial = new THREE.MeshPhongMaterial({ color: 0xfafafa });
-const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-groundMesh.receiveShadow = true;
-groundMesh.position.y = -2;
-scene.add(groundMesh);
 
 const al = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(al);
@@ -34,7 +27,7 @@ dl.castShadow = true;
 const dlHelper = new THREE.DirectionalLightHelper(dl, 3);
 scene.add(dl);
 
-camera.position.set( -50, 100, -50 );
+camera.position.set( 16, 16, 16 );
 controls.update();
 
 
