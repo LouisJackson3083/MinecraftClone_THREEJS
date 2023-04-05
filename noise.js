@@ -8,6 +8,8 @@ export class NoiseGenerator {
         // Seed - determines the random seed to generate noise from
         // Scale - determines the scale the noise should be generated at. Larger = smoother, smaller = rougher
         // Octaves - determines how fractal the noise should be, a larger octave creates a larger complexity
+        // Amplitude - determines how dramatic the terrain should be
+        // exponentiation - determines the exponent of our y value
     }
 
     // get(x, y, z) {
@@ -41,11 +43,17 @@ export class NoiseGenerator {
 
         let totalNoise = 0;
         let frequency = 1;
+        let amplitude = this.params.amplitude;
         
         for (let octave = 0; octave < this.params.octaves; octave++ ) {
-            totalNoise += this.noise.noise3D(xs * frequency, ys * frequency, zs * frequency) / frequency;
+            totalNoise += amplitude * this.noise.noise3D((xs + octave) * frequency, (ys + octave) * frequency, (zs + octave) * frequency) / frequency;
             frequency += 1;
+            amplitude /= frequency;
+            
         }
-        return totalNoise ;
+
+        totalNoise = Math.pow(totalNoise, 2);
+
+        return totalNoise;
     }
 }

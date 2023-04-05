@@ -132,8 +132,9 @@ export class ChunkManager {
         // this.noise = new NoiseGenerator(10, 1, 100, 1, 5, 16, 1);
         this.noise = new NoiseGenerator({
             seed: 6,
-            scale: 16,
-            octaves: 2,
+            scale: 32,
+            octaves: 8,
+            amplitude: 4,
         });
 
         for (let x = 0; x < 8; x++) {
